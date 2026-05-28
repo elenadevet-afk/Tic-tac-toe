@@ -2,19 +2,21 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Tic-Tac-Toe Builder</title>
+    <title>Tic-Tac-Toe Builder PRO</title>
     <style>
         body { font-family: sans-serif; margin: 0; display: flex; height: 100vh; background: #121212; color: white; }
-        #panel { width: 400px; background: #1a1a1a; padding: 20px; border-right: 2px solid #00f7ff; overflow-y: auto; }
-        .card { background: #252525; padding: 10px; margin-bottom: 10px; border-left: 4px solid #00f7ff; }
+        #panel { width: 400px; background: #1a1a1a; padding: 20px; border-right: 2px solid #ffea00; overflow-y: auto; }
+        .card { background: #252525; padding: 10px; margin-bottom: 10px; border-left: 4px solid #ffea00; }
         input { width: 100%; padding: 8px; margin: 5px 0; background: #000; color: #fff; border: 1px solid #444; }
-        .btn-copy { background: #00f7ff; color: black; padding: 15px; width: 100%; border: none; cursor: pointer; font-weight: bold; margin-top: 20px; }
+        .btn-copy { background: #ffea00; color: black; padding: 15px; width: 100%; border: none; cursor: pointer; font-weight: bold; margin-top: 20px; }
     </style>
 </head>
 <body>
 
 <div id="panel">
-    <h2>Конструктор Крестиков-Ноликов 🕹️</h2>
+    <h2>Конструктор с цветом 🎨</h2>
+    <label>Цвет клеток (Hex или Name):</label>
+    <input type="color" id="cell-col" value="#ffffff" onchange="draw()">
     <label>Картинка Игрока 1:</label>
     <input type="text" id="p1-url" value="🍎" oninput="draw()">
     <label>Картинка Игрока 2:</label>
@@ -42,12 +44,14 @@
     function getCode() {
         const p1 = document.getElementById('p1-url').value;
         const p2 = document.getElementById('p2-url').value;
+        const color = document.getElementById('cell-col').value;
         const data = JSON.stringify(cells);
         
         return `<iframe srcdoc='<!DOCTYPE html><html><head><style>
             body{margin:0;display:flex;justify-content:center;align-items:center;height:100vh;background:transparent;font-family:sans-serif}
             .grid{display:grid;grid-template-columns:repeat(3,100px);gap:10px}
-            .cell{width:100px;height:100px;border:2px solid #333;display:flex;align-items:center;justify-content:center;cursor:pointer;background:rgba(255,255,255,0.9);text-align:center;font-size:14px;font-weight:bold}
+            .cell{width:100px;height:100px;border:2px solid #333;display:flex;align-items:center;justify-content:center;cursor:pointer;background:${color};text-align:center;font-size:14px;font-weight:bold;transition:0.3s}
+            .cell:hover{filter:brightness(0.9)}
             .cell img{max-width:80px}
             </style></head><body>
             <div class="grid" id="b"></div>
@@ -77,8 +81,5 @@
     }
 
     function draw() { document.getElementById('preview-frame').innerHTML = getCode(); }
-    function copyCode() { navigator.clipboard.writeText(getCode()); alert("Код для Genially скопирован!"); }
+    function copyCode() { navigator.clipboard.writeText(getCode()); alert("Код скопирован!"); }
     renderEditor(); draw();
-</script>
-</body>
-</html>
