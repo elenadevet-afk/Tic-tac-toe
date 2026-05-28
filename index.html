@@ -2,59 +2,48 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Tic-Tac-Toe Customizer</title>
     <style>
-        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; background: #e0e0e0; padding: 20px; }
-        .editor { background: #fff; padding: 15px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .board { display: grid; grid-template-columns: repeat(3, 100px); gap: 10px; }
-        .cell { width: 100px; height: 100px; background: white; border: 2px solid #333; display: flex; align-items: center; justify-content: center; font-size: 40px; cursor: pointer; transition: 0.3s; }
-        .cell:hover { background: #f0f0f0; }
+        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; background: #fdfdfd; padding: 20px; }
+        /* Панель настройки */
+        .admin-panel { background: #eee; padding: 15px; border-radius: 10px; margin-bottom: 20px; width: 100%; max-width: 500px; }
+        textarea { width: 100%; height: 80px; margin-top: 5px; }
+        
+        /* Сетка карточек */
+        .container { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 15px; width: 100%; max-width: 800px; }
+        .card { height: 120px; background: #4a90e2; color: white; display: flex; align-items: center; justify-content: center; border-radius: 8px; cursor: pointer; font-weight: bold; text-align: center; padding: 10px; transition: 0.3s; }
+        .card.revealed { background: #50c878; }
     </style>
 </head>
 <body>
 
-    <div class="editor">
-        <h3>Theme Settings</h3>
-        Player 1: <input type="text" id="p1" value="❌" size="5">
-        Player 2: <input type="text" id="p2" value="⭕" size="5">
-        <button onclick="saveSettings()">Apply & Reset</button>
+    <div class="admin-panel">
+        <strong>Настройка тем:</strong><br>
+        Введите пары (Вопрос:Ответ), через запятую:<br>
+        <textarea id="data">Cat:Кот, Dog:Собака, Apple:Яблоко</textarea><br>
+        <button onclick="initGame()">Применить изменения</button>
     </div>
 
-    <div class="board" id="board"></div>
+    <div class="container" id="board"></div>
 
     <script>
-        let p1 = localStorage.getItem('p1') || '❌';
-        let p2 = localStorage.getItem('p2') || '⭕';
-        let board = Array(9).fill(null);
-        let turn = true;
-
-        function saveSettings() {
-            localStorage.setItem('p1', document.getElementById('p1').value);
-            localStorage.setItem('p2', document.getElementById('p2').value);
-            location.reload();
-        }
-
-        function createBoard() {
-            const b = document.getElementById('board');
-            b.innerHTML = '';
-            board.forEach((val, i) => {
-                const cell = document.createElement('div');
-                cell.className = 'cell';
-                cell.innerText = val || '';
-                cell.onclick = () => {
-                    if (!board[i]) {
-                        board[i] = turn ? p1 : p2;
-                        turn = !turn;
-                        createBoard();
-                    }
+        function initGame() {
+            const rawData = document.getElementById('data').value;
+            const pairs = rawData.split(',').map(pair => pair.split(':'));
+            const board = document.getElementById('board');
+            board.innerHTML = '';
+            
+            pairs.forEach(pair => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerText = pair[0];
+                card.onclick = () => {
+                    card.innerText = card.classList.contains('revealed') ? pair[0] : pair[1];
+                    card.classList.toggle('revealed');
                 };
-                b.appendChild(cell);
+                board.appendChild(card);
             });
         }
-
-        document.getElementById('p1').value = p1;
-        document.getElementById('p2').value = p2;
-        createBoard();
+        initGame();
     </script>
 </body>
 </html>
