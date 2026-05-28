@@ -2,55 +2,40 @@
 <html lang="en">
 <head>
     <style>
-        /* --- КОНФИГУРАЦИЯ ТЕМЫ --- */
-        :root {
-            --bg-color: #f0f0f0;
-            --cell-color: #ffffff;
-            --text-color: #333;
-            --border-color: #333;
-            /* Измените эти символы на любые эмодзи или текст */
-            --player-x: 'X'; 
-            --player-o: 'O';
-        }
-
-        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; background: var(--bg-color); }
-        .board { display: grid; grid-template-columns: repeat(3, 100px); gap: 5px; margin-top: 20px; }
-        .cell { width: 100px; height: 100px; background: var(--cell-color); border: 2px solid var(--border-color);
-                display: flex; align-items: center; justify-content: center; font-size: 40px; cursor: pointer; }
-        .status { margin-top: 20px; font-size: 24px; color: var(--text-color); }
+        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; background: #f4f4f9; padding: 20px; }
+        .controls { background: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .board { display: grid; grid-template-columns: repeat(3, 80px); gap: 5px; }
+        .cell { width: 80px; height: 80px; background: white; border: 2px solid #333; display: flex; align-items: center; justify-content: center; font-size: 30px; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <div class="status" id="status">Player X's Turn</div>
-    <div class="board" id="board"></div>
+    <div class="controls">
+        <input type="text" id="charX" placeholder="Player 1 (e.g. 🐱)" size="10">
+        <input type="text" id="charO" placeholder="Player 2 (e.g. 🐶)" size="10">
+        <input type="color" id="colorPicker" value="#ffffff">
+        <button onclick="updateSettings()">Apply Changes</button>
+    </div>
+
+    <div id="board" class="board"></div>
 
     <script>
+        let pX = 'X', pO = 'O';
+        
+        function updateSettings() {
+            pX = document.getElementById('charX').value || 'X';
+            pO = document.getElementById('charO').value || 'O';
+            const bgColor = document.getElementById('colorPicker').value;
+            document.querySelectorAll('.cell').forEach(c => c.style.backgroundColor = bgColor);
+        }
+
         const boardElement = document.getElementById('board');
-        const statusElement = document.getElementById('status');
-        let board = Array(9).fill(null);
-        let isX = true;
-
-        function createBoard() {
-            boardElement.innerHTML = '';
-            board.forEach((val, i) => {
-                const cell = document.createElement('div');
-                cell.className = 'cell';
-                cell.onclick = () => makeMove(i);
-                cell.innerText = val ? (val === 'X' ? 'X' : 'O') : ''; // Здесь можно подставить переменные из CSS
-                boardElement.appendChild(cell);
-            });
+        for(let i=0; i<9; i++) {
+            const cell = document.createElement('div');
+            cell.className = 'cell';
+            cell.onclick = (e) => e.target.innerText = (e.target.innerText === pX) ? pO : pX;
+            boardElement.appendChild(cell);
         }
-
-        function makeMove(i) {
-            if (!board[i]) {
-                board[i] = isX ? 'X' : 'O';
-                isX = !isX;
-                statusElement.innerText = `Player ${isX ? 'X' : 'O'}'s Turn`;
-                createBoard();
-            }
-        }
-        createBoard();
     </script>
 </body>
 </html>
