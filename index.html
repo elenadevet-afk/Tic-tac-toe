@@ -2,82 +2,87 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Tic-Tac-Toe Builder for Genially</title>
+    <title>Advanced Game Builder</title>
     <style>
         body { font-family: sans-serif; margin: 0; display: flex; height: 100vh; background: #121212; color: white; }
-        #panel { width: 400px; background: #1a1a1a; padding: 20px; overflow-y: auto; border-right: 2px solid #ff007f; }
-        .card { background: #252525; padding: 10px; border-radius: 6px; margin-bottom: 10px; border-left: 4px solid #ff007f; }
-        input, textarea { width: 100%; padding: 8px; margin: 5px 0; background: #000; color: #fff; border: 1px solid #444; box-sizing: border-box; }
-        #view { flex-grow: 1; padding: 20px; display: flex; align-items: center; justify-content: center; }
-        .btn-copy { background: #ff007f; color: white; padding: 15px; width: 100%; border: none; cursor: pointer; font-weight: bold; margin-top: 20px; }
+        #panel { width: 450px; background: #1a1a1a; padding: 20px; border-right: 2px solid #39ff14; overflow-y: auto; }
+        input, textarea { width: 100%; margin: 5px 0 15px; padding: 8px; }
+        .card { background: #252525; padding: 10px; border-radius: 6px; margin-bottom: 10px; border-left: 4px solid #39ff14; }
+        .btn-copy { background: #39ff14; color: black; padding: 15px; width: 100%; border: none; cursor: pointer; font-weight: bold; margin-top: 20px; }
     </style>
 </head>
 <body>
 
 <div id="panel">
-    <h2>Конструктор игры 🏆</h2>
-    <label>Картинка Игрока 1 (URL):</label>
-    <input type="text" id="p1-url" value="🍎" oninput="draw()">
-    <label>Картинка Игрока 2 (URL):</label>
-    <input type="text" id="p2-url" value="🍌" oninput="draw()">
-    <hr>
+    <h2>Конструктор с баллами и звуками 🔊</h2>
+    <label>Картинка/Символ (Верный ответ):</label>
+    <input type="text" id="win-sym" value="✅" oninput="draw()">
+    <label>Картинка/Символ (Ошибка):</label>
+    <input type="text" id="fail-sym" value="❌" oninput="draw()">
     <div id="q-list"></div>
-    <button class="btn-copy" onclick="copyCode()">КОПИРОВАТЬ КОД ДЛЯ GENIALLY</button>
+    <button class="btn-copy" onclick="copyCode()">СКОПИРОВАТЬ КОД ДЛЯ GENIALLY</button>
 </div>
 
-<div id="view">
+<div id="view" style="flex-grow:1; display:flex; justify-content:center; align-items:center;">
     <div id="preview-frame"></div>
 </div>
 
 <script>
-    let cells = Array.from({length: 9}, (_, i) => "Задание " + (i + 1));
+    // Настройки: вопрос, правильный вариант (true/false)
+    let qs = Array.from({length: 9}, (_, i) => ({ text: "Вопрос "+(i+1), isCorrect: false }));
 
     function renderEditor() {
-        const c = document.getElementById('q-list');
-        cells.forEach((val, i) => {
-            const d = document.createElement('div');
-            d.className = 'card';
-            d.innerHTML = `<small>Клетка ${i+1}</small><input type="text" value="${val}" oninput="cells[${i}]=this.value;draw()">`;
+        const c = document.getElementById('q-list'); c.innerHTML = '';
+        qs.forEach((q, i) => {
+            const d = document.createElement('div'); d.className = 'card';
+            d.innerHTML = `<small>Клетка ${i+1}</small>
+                <input type="text" value="${q.text}" oninput="qs[${i}].text=this.value;draw()">
+                <label><input type="checkbox" ${q.isCorrect ? 'checked' : ''} onchange="qs[${i}].isCorrect=this.checked;draw()"> Правильный ответ?</label>`;
             c.appendChild(d);
         });
     }
 
     function getCode() {
-        const p1 = document.getElementById('p1-url').value;
-        const p2 = document.getElementById('p2-url').value;
-        const data = JSON.stringify(cells);
+        const winSym = document.getElementById('win-sym').value;
+        const failSym = document.getElementById('fail-sym').value;
+        const data = JSON.stringify(qs);
         
         return `<iframe srcdoc='<!DOCTYPE html><html><head><style>
-            body{margin:0;display:flex;justify-content:center;align-items:center;height:100vh;background:transparent;font-family:sans-serif}
+            body{margin:0;display:flex;flex-direction:column;align-items:center;height:100vh;background:transparent;font-family:sans-serif}
             .grid{display:grid;grid-template-columns:repeat(3,100px);gap:10px}
-            .cell{width:100px;height:100px;border:2px solid #333;display:flex;align-items:center;justify-content:center;cursor:pointer;background:rgba(255,255,255,0.8);text-align:center;font-size:12px}
-            .cell img{max-width:80px}
+            .cell{width:100px;height:100px;border:2px solid #333;display:flex;align-items:center;justify-content:center;cursor:pointer;background:rgba(255,255,255,0.9);text-align:center;font-size:12px}
+            #score{font-size:24px;margin-bottom:10px;color:#fff;text-shadow:0 0 5px #000}
             </style></head><body>
+            <div id="score">Баллы: <span id="s">0</span></div>
             <div class="grid" id="b"></div>
             <script>
-                const cells=${data};
-                const b=document.getElementById("b");
-                let turn=true;
-                cells.forEach(item=>{
-                    const d=document.createElement("div"); d.className="cell"; d.innerText=item;
+                const qs=${data}, b=document.getElementById("b"), sEl=document.getElementById("s");
+                let score=0;
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                function playS(type){
+                    const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+                    osc.connect(gain); gain.connect(audioCtx.destination);
+                    if(type==="click"){ osc.frequency.value=440; gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime+0.1); }
+                    else{ osc.frequency.value=880; gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime+0.5); }
+                    osc.start(); osc.stop(audioCtx.currentTime+0.5);
+                }
+                qs.forEach(q=>{
+                    const d=document.createElement("div"); d.className="cell"; d.innerText=q.text;
                     d.onclick=function(){
-                        if(!this.dataset.filled){
-                            const icon="${p1.startsWith("http") ? "<img src="+p1+">" : p1}";
-                            const icon2="${p2.startsWith("http") ? "<img src="+p2+">" : p2}";
-                            this.innerHTML=turn?icon:icon2;
-                            this.dataset.filled="true"; turn=!turn;
+                        if(!this.dataset.used){
+                            playS("click");
+                            if(q.isCorrect){ score+=10; this.innerHTML="${winSym}"; playS("win"); }
+                            else{ this.innerHTML="${failSym}"; }
+                            sEl.innerText=score; this.dataset.used="true";
                         }
                     };
                     b.appendChild(d);
                 });
-            <\/script></body></html>' width="350" height="350" frameborder="0" allowtransparency="true"></iframe>`;
+            <\/script></body></html>' width="350" height="400" frameborder="0" allowtransparency="true"></iframe>`;
     }
 
     function draw() { document.getElementById('preview-frame').innerHTML = getCode(); }
-    function copyCode() {
-        navigator.clipboard.writeText(getCode());
-        alert("Код скопирован!");
-    }
+    function copyCode() { navigator.clipboard.writeText(getCode()); alert("Код для Genially скопирован!"); }
     renderEditor(); draw();
 </script>
 </body>
