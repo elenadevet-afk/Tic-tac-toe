@@ -1,38 +1,45 @@
-<iframe 
-    width="100%" 
-    height="100%" 
-    frameborder="0" 
-    srcdoc='<!DOCTYPE html>
-    <html>
-    <head>
-        <style>
-            body { font-family: sans-serif; background: transparent; display: flex; flex-direction: column; align-items: center; }
-            #ui { background: rgba(255,255,255,0.9); padding: 20px; border-radius: 10px; position: absolute; z-index: 10; }
-            #board { display: grid; grid-template-columns: repeat(3, 100px); gap: 10px; margin-top: 20px; }
-            .cell { width: 100px; height: 100px; background: rgba(255,255,255,0.6); border: 2px solid #000; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 14px; text-align: center; }
-        </style>
-    </head>
-    <body>
-        <div id="ui">
-            <textarea id="items" placeholder="9 слов или ссылок через запятую"></textarea><br>
-            <button onclick="start()">Запустить игру</button>
-        </div>
-        <div id="board"></div>
-        <script>
-            function start() {
-                const list = document.getElementById("items").value.split(",");
-                const board = document.getElementById("board");
-                document.getElementById("ui").style.display = "none";
-                board.innerHTML = "";
-                list.forEach(item => {
-                    const div = document.createElement("div");
-                    div.className = "cell";
-                    div.innerHTML = item.trim().startsWith("http") ? `<img src="${item.trim()}" width="80">` : item.trim();
-                    div.onclick = function() { this.innerText = "X"; };
-                    board.appendChild(div);
-                });
-            }
-        </script>
-    </body>
-    </html>'>
-</iframe>
+<iframe srcdoc='
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+    body { font-family: sans-serif; background: transparent; display: flex; flex-direction: column; align-items: center; padding: 10px; }
+    #ui { background: white; padding: 15px; border-radius: 8px; border: 2px solid #333; width: 90%; }
+    textarea { width: 100%; height: 60px; margin-top: 5px; }
+    .board { display: grid; grid-template-columns: repeat(3, 80px); gap: 5px; margin-top: 15px; }
+    .cell { width: 80px; height: 80px; border: 2px solid #000; display: flex; align-items: center; justify-content: center; cursor: pointer; background: rgba(255,255,255,0.7); }
+</style>
+</head>
+<body>
+    <div id="ui">
+        <b>Настройка (9 элементов):</b>
+        <textarea id="items" placeholder="Слово1,Слово2,Слово3..."></textarea>
+        <p>Игрок 1: <input type="text" id="p1" value="X" size="3"> Игрок 2: <input type="text" id="p2" value="O" size="3"></p>
+        <button onclick="start()">Запустить игру</button>
+    </div>
+    <div class="board" id="board"></div>
+    <script>
+        function start() {
+            const list = document.getElementById("items").value.split(",");
+            const p1 = document.getElementById("p1").value;
+            const p2 = document.getElementById("p2").value;
+            const board = document.getElementById("board");
+            document.getElementById("ui").style.display = "none";
+            let turn = true;
+            list.forEach(item => {
+                const div = document.createElement("div");
+                div.className = "cell";
+                div.innerText = item.trim();
+                div.onclick = function() {
+                    if(this.innerText !== p1 && this.innerText !== p2) {
+                        this.innerText = turn ? p1 : p2;
+                        turn = !turn;
+                    }
+                };
+                board.appendChild(div);
+            });
+        }
+    </script>
+</body>
+</html>' 
+width="400" height="450" frameborder="0" allowtransparency="true"></iframe>
