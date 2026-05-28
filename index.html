@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Tic-Tac-Toe Quiz Builder PRO</title>
+    <title>Tic-Tac-Toe Quiz Builder PRO+</title>
     <style>
         body { font-family: sans-serif; margin: 0; display: flex; height: 100vh; background: #121212; color: white; }
         #panel { width: 450px; background: #1a1a1a; padding: 20px; border-right: 2px solid #ffea00; overflow-y: auto; }
@@ -14,9 +14,13 @@
 <body>
 
 <div id="panel">
-    <h2>Конструктор Заданий (L) 📝</h2>
+    <h2>Конструктор с настройкой текста 🎨</h2>
     <label>Цвет клеток:</label>
     <input type="color" id="cell-col" value="#ffffff" onchange="draw()">
+    <label>Цвет текста:</label>
+    <input type="color" id="text-col" value="#000000" onchange="draw()">
+    <label>Размер шрифта (px):</label>
+    <input type="number" id="font-size" value="16" oninput="draw()">
     <label>Картинка Игрока 1:</label>
     <input type="text" id="p1-url" value="🍎" oninput="draw()">
     <label>Картинка Игрока 2:</label>
@@ -45,12 +49,14 @@
         const p1 = document.getElementById('p1-url').value;
         const p2 = document.getElementById('p2-url').value;
         const color = document.getElementById('cell-col').value;
+        const textColor = document.getElementById('text-col').value;
+        const fontSize = document.getElementById('font-size').value;
         const data = JSON.stringify(tasks);
         
         return `<iframe srcdoc='<!DOCTYPE html><html><head><style>
             body{margin:0;display:flex;justify-content:center;align-items:center;height:100vh;background:transparent;font-family:sans-serif}
             .grid{display:grid;grid-template-columns:repeat(3,150px);gap:10px}
-            .cell{width:150px;height:150px;border:2px solid #333;display:flex;align-items:center;justify-content:center;cursor:pointer;background:${color};text-align:center;font-size:16px;font-weight:bold;padding:10px;box-sizing:border-box}
+            .cell{width:150px;height:150px;border:2px solid #333;display:flex;align-items:center;justify-content:center;cursor:pointer;background:${color};color:${textColor};font-size:${fontSize}px;text-align:center;font-weight:bold;padding:10px;box-sizing:border-box}
             .cell img{max-width:120px}
             </style></head><body>
             <div class="grid" id="b"></div>
