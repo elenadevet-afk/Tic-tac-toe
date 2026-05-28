@@ -1,41 +1,60 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <title>Tic-Tac-Toe Customizer</title>
     <style>
-        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; background: #f4f4f9; padding: 20px; }
-        .controls { background: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .board { display: grid; grid-template-columns: repeat(3, 80px); gap: 5px; }
-        .cell { width: 80px; height: 80px; background: white; border: 2px solid #333; display: flex; align-items: center; justify-content: center; font-size: 30px; cursor: pointer; }
+        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; background: #e0e0e0; padding: 20px; }
+        .editor { background: #fff; padding: 15px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .board { display: grid; grid-template-columns: repeat(3, 100px); gap: 10px; }
+        .cell { width: 100px; height: 100px; background: white; border: 2px solid #333; display: flex; align-items: center; justify-content: center; font-size: 40px; cursor: pointer; transition: 0.3s; }
+        .cell:hover { background: #f0f0f0; }
     </style>
 </head>
 <body>
 
-    <div class="controls">
-        <input type="text" id="charX" placeholder="Player 1 (e.g. 🐱)" size="10">
-        <input type="text" id="charO" placeholder="Player 2 (e.g. 🐶)" size="10">
-        <input type="color" id="colorPicker" value="#ffffff">
-        <button onclick="updateSettings()">Apply Changes</button>
+    <div class="editor">
+        <h3>Theme Settings</h3>
+        Player 1: <input type="text" id="p1" value="❌" size="5">
+        Player 2: <input type="text" id="p2" value="⭕" size="5">
+        <button onclick="saveSettings()">Apply & Reset</button>
     </div>
 
-    <div id="board" class="board"></div>
+    <div class="board" id="board"></div>
 
     <script>
-        let pX = 'X', pO = 'O';
-        
-        function updateSettings() {
-            pX = document.getElementById('charX').value || 'X';
-            pO = document.getElementById('charO').value || 'O';
-            const bgColor = document.getElementById('colorPicker').value;
-            document.querySelectorAll('.cell').forEach(c => c.style.backgroundColor = bgColor);
+        let p1 = localStorage.getItem('p1') || '❌';
+        let p2 = localStorage.getItem('p2') || '⭕';
+        let board = Array(9).fill(null);
+        let turn = true;
+
+        function saveSettings() {
+            localStorage.setItem('p1', document.getElementById('p1').value);
+            localStorage.setItem('p2', document.getElementById('p2').value);
+            location.reload();
         }
 
-        const boardElement = document.getElementById('board');
-        for(let i=0; i<9; i++) {
-            const cell = document.createElement('div');
-            cell.className = 'cell';
-            cell.onclick = (e) => e.target.innerText = (e.target.innerText === pX) ? pO : pX;
-            boardElement.appendChild(cell);
+        function createBoard() {
+            const b = document.getElementById('board');
+            b.innerHTML = '';
+            board.forEach((val, i) => {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.innerText = val || '';
+                cell.onclick = () => {
+                    if (!board[i]) {
+                        board[i] = turn ? p1 : p2;
+                        turn = !turn;
+                        createBoard();
+                    }
+                };
+                b.appendChild(cell);
+            });
         }
+
+        document.getElementById('p1').value = p1;
+        document.getElementById('p2').value = p2;
+        createBoard();
     </script>
 </body>
 </html>
