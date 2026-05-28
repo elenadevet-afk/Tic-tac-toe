@@ -1,42 +1,62 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
+    <title>Game Customizer</title>
     <style>
-        /* НАСТРОЙКИ ВНЕШНЕГО ВИДА */
-        :root {
-            --bg-color: #f7f7f7;
-            --card-color: #ffcc00; /* Цвет карточки */
-            --font-main: 'Arial', sans-serif;
-        }
-        body { font-family: var(--font-main); background: var(--bg-color); display: flex; flex-direction: column; align-items: center; }
-        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 30px; }
-        .card { width: 120px; height: 120px; background: var(--card-color); border-radius: 15px; 
-                display: flex; align-items: center; justify-content: center; font-size: 20px; 
-                cursor: pointer; box-shadow: 0 4px 8px rgba(0,0,0,0.2); transition: transform 0.2s; }
-        .card:hover { transform: scale(1.05); }
+        body { font-family: sans-serif; background: #f0f0f0; display: flex; flex-direction: column; align-items: center; }
+        .hidden { display: none; }
+        .board { display: grid; grid-template-columns: repeat(3, 100px); gap: 10px; margin-top: 20px; }
+        .cell { width: 100px; height: 100px; background: white; border: 2px solid #333; display: flex; align-items: center; justify-content: center; font-size: 40px; cursor: pointer; }
+        .admin { background: #fff; padding: 20px; border: 2px dashed #666; margin-top: 20px; width: 300px; }
     </style>
 </head>
 <body>
 
-    <div id="game-board" class="grid"></div>
+    <div id="game-view">
+        <h2 id="theme-title">Game</h2>
+        <div class="board" id="board"></div>
+    </div>
+
+    <div id="admin-view" class="admin hidden">
+        <h3>Settings</h3>
+        Theme Name: <input type="text" id="in-title"><br><br>
+        Player 1 (Char): <input type="text" id="in-p1" size="5"><br>
+        Player 2 (Char): <input type="text" id="in-p2" size="5"><br>
+        <button onclick="save()">Save & Apply</button>
+    </div>
 
     <script>
-        // --- КОНФИГУРАЦИЯ (Меняйте только это!) ---
-        const themeConfig = {
-            character: "🐹", // Можно поставить URL картинки или эмодзи
-            items: ["Apple", "Banana", "Orange", "Cat", "Dog", "Fish"]
-        };
-        // ------------------------------------------
+        // Инициализация из памяти
+        const config = JSON.parse(localStorage.getItem('gameCfg')) || { title: "Tic Tac Toe", p1: "❌", p2: "⭕" };
+        
+        // Отображение панели редактирования
+        if (window.location.search.includes('edit=true')) {
+            document.getElementById('admin-view').classList.remove('hidden');
+            document.getElementById('in-title').value = config.title;
+            document.getElementById('in-p1').value = config.p1;
+            document.getElementById('in-p2').value = config.p2;
+        }
 
-        const board = document.getElementById('game-board');
-        themeConfig.items.forEach(item => {
-            const card = document.createElement('div');
-            card.className = 'card';
-            card.innerHTML = `${themeConfig.character}<br>${item}`;
-            card.onclick = () => alert(`Great! You found: ${item}`);
-            board.appendChild(card);
-        });
+        function save() {
+            const newCfg = { 
+                title: document.getElementById('in-title').value,
+                p1: document.getElementById('in-p1').value,
+                p2: document.getElementById('in-p2').value
+            };
+            localStorage.setItem('gameCfg', JSON.stringify(newCfg));
+            alert("Settings saved! Refresh to see changes.");
+        }
+
+        // Рендер игры
+        document.getElementById('theme-title').innerText = config.title;
+        const board = document.getElementById('board');
+        for(let i=0; i<9; i++) {
+            const cell = document.createElement('div');
+            cell.className = 'cell';
+            cell.onclick = (e) => e.target.innerText = (e.target.innerText === config.p1) ? config.p2 : config.p1;
+            board.appendChild(cell);
+        }
     </script>
 </body>
 </html>
