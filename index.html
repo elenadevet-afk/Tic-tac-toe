@@ -2,40 +2,57 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <title>Game Constructor</title>
     <style>
-        :root { --bg: #f4f4f9; --accent: #4a90e2; }
-        body { font-family: sans-serif; background: var(--bg); display: flex; flex-direction: column; align-items: center; }
-        .board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 20px; width: 350px; }
-        .card { height: 100px; background: white; border: 2px solid var(--accent); display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; border-radius: 10px; }
+        body { font-family: sans-serif; background: #222; color: white; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        #editor-panel { background: #333; padding: 20px; border-radius: 10px; width: 90%; max-width: 600px; margin-bottom: 20px; }
+        .game-board { display: grid; grid-template-columns: repeat(3, 100px); gap: 10px; }
+        .cell { width: 100px; height: 100px; background: white; color: black; display: flex; align-items: center; justify-content: center; font-size: 30px; cursor: pointer; border: 2px solid #555; }
+        textarea { width: 100%; height: 60px; margin-top: 10px; }
     </style>
 </head>
 <body>
 
-    <h1 id="title"></h1>
-    <div class="board" id="board"></div>
+    <div id="editor-panel">
+        <h2>Редактор игры</h2>
+        <label>Имя Игрока 1: <input type="text" id="name1" value="Player 1"></label>
+        <label>Имя Игрока 2: <input type="text" id="name2" value="Player 2"></label><br><br>
+        <label>Символ 1 (или эмодзи): <input type="text" id="char1" value="X" size="5"></label>
+        <label>Символ 2 (или эмодзи): <input type="text" id="char2" value="O" size="5"></label>
+        <button onclick="applySettings()" style="background: #4CAF50; color: white; border: none; padding: 10px; cursor: pointer;">Сохранить и начать</button>
+    </div>
+
+    <div id="game-container">
+        <h2 id="status">Настройте игру и нажмите кнопку</h2>
+        <div class="game-board" id="board"></div>
+    </div>
 
     <script>
-        // --- РЕДАКТИРУЙТЕ ТОЛЬКО ЭТО ---
-        const CONFIG = {
-            title: "English Lesson: Animals",
-            items: ["Cat", "Dog", "Bird", "Fish", "Lion", "Tiger", "Bear", "Wolf", "Fox"],
-            char1: "🐱",
-            char2: "🐶"
-        };
-        // -------------------------------
+        let p1 = 'X', p2 = 'O';
+        function applySettings() {
+            p1 = document.getElementById('char1').value;
+            p2 = document.getElementById('char2').value;
+            document.getElementById('status').innerText = document.getElementById('name1').value + " vs " + document.getElementById('name2').value;
+            renderBoard();
+        }
 
-        document.getElementById('title').innerText = CONFIG.title;
-        const board = document.getElementById('board');
-        
-        CONFIG.items.forEach(item => {
-            const card = document.createElement('div');
-            card.className = 'card';
-            card.innerText = item;
-            card.onclick = () => {
-                card.innerText = (card.innerText === item) ? (Math.random() > 0.5 ? CONFIG.char1 : CONFIG.char2) : item;
-            };
-            board.appendChild(card);
-        });
+        function renderBoard() {
+            const board = document.getElementById('board');
+            board.innerHTML = '';
+            let turn = true;
+            for(let i = 0; i < 9; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.onclick = function() {
+                    if(!this.innerText) {
+                        this.innerText = turn ? p1 : p2;
+                        turn = !turn;
+                    }
+                };
+                board.appendChild(cell);
+            }
+        }
+        renderBoard();
     </script>
 </body>
 </html>
