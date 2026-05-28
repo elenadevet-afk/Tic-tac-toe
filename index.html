@@ -1,34 +1,38 @@
-<div id="wrapper" style="background: transparent; width: 100%; height: 100%; font-family: sans-serif;">
-    <div id="editor" style="background: rgba(255,255,255,0.9); padding: 15px; border-radius: 10px; margin-bottom: 10px;">
-        <input type="text" id="wordsInput" placeholder="9 слов через запятую" style="width: 80%; padding: 5px;">
-        <button onclick="saveAndStart()" style="padding: 5px 15px; background: #4CAF50; color: white; border: none; cursor: pointer;">Применить</button>
-    </div>
-    
-    <div id="board" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; width: 300px;"></div>
-</div>
-
-<script>
-    function saveAndStart() {
-        const input = document.getElementById('wordsInput').value;
-        if(input) localStorage.setItem('gameData', input);
-        render();
-    }
-
-    function render() {
-        const data = localStorage.getItem('gameData') || "1,2,3,4,5,6,7,8,9";
-        const words = data.split(',');
-        const board = document.getElementById('board');
-        board.innerHTML = '';
-        words.forEach(w => {
-            const cell = document.createElement('div');
-            cell.style = "height: 80px; border: 2px solid #333; display: flex; align-items: center; justify-content: center; cursor: pointer; background: rgba(255,255,255,0.7);";
-            cell.innerText = w.trim();
-            cell.onclick = function() { this.innerText = "X"; };
-            board.appendChild(cell);
-        });
-        document.getElementById('editor').style.display = 'none';
-    }
-
-    // Проверка при загрузке: если данные есть, сразу показать игру
-    if(localStorage.getItem('gameData')) render();
-</script>
+<iframe 
+    width="100%" 
+    height="100%" 
+    frameborder="0" 
+    srcdoc='<!DOCTYPE html>
+    <html>
+    <head>
+        <style>
+            body { font-family: sans-serif; background: transparent; display: flex; flex-direction: column; align-items: center; }
+            #ui { background: rgba(255,255,255,0.9); padding: 20px; border-radius: 10px; position: absolute; z-index: 10; }
+            #board { display: grid; grid-template-columns: repeat(3, 100px); gap: 10px; margin-top: 20px; }
+            .cell { width: 100px; height: 100px; background: rgba(255,255,255,0.6); border: 2px solid #000; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 14px; text-align: center; }
+        </style>
+    </head>
+    <body>
+        <div id="ui">
+            <textarea id="items" placeholder="9 слов или ссылок через запятую"></textarea><br>
+            <button onclick="start()">Запустить игру</button>
+        </div>
+        <div id="board"></div>
+        <script>
+            function start() {
+                const list = document.getElementById("items").value.split(",");
+                const board = document.getElementById("board");
+                document.getElementById("ui").style.display = "none";
+                board.innerHTML = "";
+                list.forEach(item => {
+                    const div = document.createElement("div");
+                    div.className = "cell";
+                    div.innerHTML = item.trim().startsWith("http") ? `<img src="${item.trim()}" width="80">` : item.trim();
+                    div.onclick = function() { this.innerText = "X"; };
+                    board.appendChild(div);
+                });
+            }
+        </script>
+    </body>
+    </html>'>
+</iframe>
