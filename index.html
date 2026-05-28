@@ -1,21 +1,112 @@
-<div style="text-align:center;">
-    <h3>PINK PANTHER VERBS</h3>
-    <table border="1" style="margin:auto; border-collapse:collapse; width:200px;">
-        <tr>
-            <td style="height:60px; text-align:center;" onclick="this.innerHTML='🐾'">BE</td>
-            <td style="height:60px; text-align:center;" onclick="this.innerHTML='🐾'">GO</td>
-            <td style="height:60px; text-align:center;" onclick="this.innerHTML='🐾'">DO</td>
-        </tr>
-        <tr>
-            <td style="height:60px; text-align:center;" onclick="this.innerHTML='🐾'">HAVE</td>
-            <td style="height:60px; text-align:center;" onclick="this.innerHTML='🐾'">EAT</td>
-            <td style="height:60px; text-align:center;" onclick="this.innerHTML='🐾'">SEE</td>
-        </tr>
-        <tr>
-            <td style="height:60px; text-align:center;" onclick="this.innerHTML='🐾'">SAY</td>
-            <td style="height:60px; text-align:center;" onclick="this.innerHTML='🐾'">RUN</td>
-            <td style="height:60px; text-align:center;" onclick="this.innerHTML='🐾'">MAKE</td>
-        </tr>
-    </table>
-    <p>Нажми на глагол, чтобы отметить его!</p>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Bungee&family=Montserrat:wght@400;800&display=swap');
+
+    .pp-wrapper {
+        font-family: 'Montserrat', sans-serif;
+        background-color: #2d0a15;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+        color: white;
+        border-radius: 20px;
+        width: 100%;
+        max-width: 400px;
+        box-sizing: border-box;
+    }
+
+    .pp-container { text-align: center; width: 100%; }
+    .pp-container h1 { font-family: 'Bungee', cursive; color: #ff85a2; font-size: 2rem; margin: 0; }
+    .pp-subtitle { font-size: 0.7rem; letter-spacing: 2px; margin-bottom: 15px; color: #ffdeeb; }
+    .pp-status { font-weight: 800; margin-bottom: 10px; height: 20px; color: #ff85a2; font-size: 0.9rem; }
+
+    .pp-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        background: #ff85a2;
+        padding: 8px;
+        border-radius: 15px;
+    }
+
+    .pp-cell {
+        aspect-ratio: 1/1;
+        background: #ffdeeb;
+        border-radius: 8px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        position: relative;
+        border: none;
+    }
+
+    .pp-cell:hover:not(.pp-taken) { background: white; }
+    .pp-v-base { font-size: 0.9rem; font-weight: 800; color: #c2185b; text-transform: uppercase; }
+    .pp-v-forms, .pp-v-ru { font-size: 0.6rem; color: #d81b60; opacity: 0; transition: 0.3s; }
+    .pp-cell:hover:not(.pp-taken) .pp-v-forms, .pp-cell:hover:not(.pp-taken) .pp-v-ru { opacity: 1; }
+    .pp-symbol { font-size: 2.5rem; display: none; position: absolute; z-index: 5; }
+    .pp-cell.pp-taken .pp-v-base, .pp-cell.pp-taken .pp-v-forms, .pp-cell.pp-taken .pp-v-ru { visibility: hidden; }
+    .pp-cell.pp-taken .pp-symbol { display: block; }
+    .pp-cell.pp-win { background: #fff !important; box-shadow: 0 0 15px #ff85a2; }
+    .pp-reset { margin-top: 15px; padding: 8px 20px; background: #ff85a2; border: none; border-radius: 20px; cursor: pointer; font-weight: 800; }
+</style>
+
+<div class="pp-wrapper">
+    <div class="pp-container">
+        <h1>PINK PANTHER</h1>
+        <div class="pp-subtitle">VERB INVESTIGATION</div>
+        <div class="pp-status" id="pp-status">🐾 Panther's turn...</div>
+        <div class="pp-grid" id="pp-grid">
+            <script>
+                const verbs = [
+                    {b: "BE", f: "was/were-been", r: "быть"}, {b: "GO", f: "went-gone", r: "идти"},
+                    {b: "DO", f: "did-done", r: "делать"}, {b: "HAVE", f: "had-had", r: "иметь"},
+                    {b: "EAT", f: "ate-eaten", r: "есть"}, {b: "SEE", f: "saw-seen", r: "видеть"},
+                    {b: "SAY", f: "said-said", r: "говорить"}, {b: "RUN", f: "ran-run", r: "бежать"},
+                    {b: "MAKE", f: "made-made", r: "создавать"}
+                ];
+                verbs.forEach((v, i) => {
+                    document.write(`
+                        <div class="pp-cell" data-index="${i}" onclick="pp_click(this)">
+                            <span class="pp-symbol"></span>
+                            <span class="pp-v-base">${v.b}</span>
+                            <span class="pp-v-forms">${v.f}</span>
+                            <span class="pp-v-ru">${v.r}</span>
+                        </div>
+                    `);
+                });
+            </script>
+        </div>
+        <button class="pp-reset" onclick="pp_reset()">RESTART</button>
+    </div>
 </div>
+
+<script>
+    let pp_curr = '🐾', pp_board = Array(9).fill(""), pp_active = true;
+    function pp_click(el) {
+        let i = el.dataset.index;
+        if (pp_board[i] !== "" || !pp_active) return;
+        pp_board[i] = pp_curr;
+        el.classList.add('pp-taken');
+        el.querySelector('.pp-symbol').innerText = pp_curr;
+        
+        const w = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+        let win = w.find(c => pp_board[c[0]] && pp_board[c[0]] == pp_board[c[1]] && pp_board[c[0]] == pp_board[c[2]]);
+        
+        if (win) {
+            win.forEach(i => document.querySelectorAll('.pp-cell')[i].classList.add('pp-win'));
+            document.getElementById('pp-status').innerText = pp_curr + " Wins!";
+            pp_active = false;
+        } else if (!pp_board.includes("")) {
+            document.getElementById('pp-status').innerText = "Draw!";
+        } else {
+            pp_curr = pp_curr === '🐾' ? '🕵️‍♂️' : '🐾';
+            document.getElementById('pp-status').innerText = pp_curr + "'s turn...";
+        }
+    }
+    function pp_reset() {
+        location.reload(); // Самый простой способ сброса внутри iFrame
+    }
+</script>
