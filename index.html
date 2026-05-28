@@ -1,61 +1,59 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Game Customizer</title>
     <style>
-        body { font-family: sans-serif; background: #f0f0f0; display: flex; flex-direction: column; align-items: center; }
+        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; background: #f0f0f0; margin: 0; padding: 20px; }
+        #editor { background: white; padding: 20px; border-radius: 10px; width: 300px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        .board { display: grid; grid-template-columns: repeat(3, 80px); gap: 10px; margin-top: 20px; }
+        .cell { width: 80px; height: 80px; background: white; border: 3px solid #333; display: flex; align-items: center; justify-content: center; font-size: 30px; cursor: pointer; }
         .hidden { display: none; }
-        .board { display: grid; grid-template-columns: repeat(3, 100px); gap: 10px; margin-top: 20px; }
-        .cell { width: 100px; height: 100px; background: white; border: 2px solid #333; display: flex; align-items: center; justify-content: center; font-size: 40px; cursor: pointer; }
-        .admin { background: #fff; padding: 20px; border: 2px dashed #666; margin-top: 20px; width: 300px; }
     </style>
 </head>
 <body>
 
-    <div id="game-view">
-        <h2 id="theme-title">Game</h2>
-        <div class="board" id="board"></div>
+    <!-- ПАНЕЛЬ РЕДАКТОРА -->
+    <div id="editor">
+        <h3>Настройка игры</h3>
+        Тема: <input type="text" id="title" value="English Quiz"><br><br>
+        Игрок 1: <input type="text" id="p1" value="✅" size="5"><br>
+        Игрок 2: <input type="text" id="p2" value="❌" size="5"><br>
+        Цвет ячеек: <input type="color" id="color" value="#ffffff"><br><br>
+        <button onclick="startGame()">Запустить игру</button>
     </div>
 
-    <div id="admin-view" class="admin hidden">
-        <h3>Settings</h3>
-        Theme Name: <input type="text" id="in-title"><br><br>
-        Player 1 (Char): <input type="text" id="in-p1" size="5"><br>
-        Player 2 (Char): <input type="text" id="in-p2" size="5"><br>
-        <button onclick="save()">Save & Apply</button>
+    <!-- ИГРОВОЕ ПОЛЕ -->
+    <div id="game-area" class="hidden">
+        <h2 id="display-title"></h2>
+        <div class="board" id="board"></div>
+        <button onclick="location.reload()" style="margin-top:20px">Сбросить настройки</button>
     </div>
 
     <script>
-        // Инициализация из памяти
-        const config = JSON.parse(localStorage.getItem('gameCfg')) || { title: "Tic Tac Toe", p1: "❌", p2: "⭕" };
-        
-        // Отображение панели редактирования
-        if (window.location.search.includes('edit=true')) {
-            document.getElementById('admin-view').classList.remove('hidden');
-            document.getElementById('in-title').value = config.title;
-            document.getElementById('in-p1').value = config.p1;
-            document.getElementById('in-p2').value = config.p2;
-        }
+        function startGame() {
+            const p1 = document.getElementById('p1').value;
+            const p2 = document.getElementById('p2').value;
+            const title = document.getElementById('title').value;
+            const color = document.getElementById('color').value;
 
-        function save() {
-            const newCfg = { 
-                title: document.getElementById('in-title').value,
-                p1: document.getElementById('in-p1').value,
-                p2: document.getElementById('in-p2').value
-            };
-            localStorage.setItem('gameCfg', JSON.stringify(newCfg));
-            alert("Settings saved! Refresh to see changes.");
-        }
+            document.getElementById('editor').classList.add('hidden');
+            document.getElementById('game-area').classList.remove('hidden');
+            document.getElementById('display-title').innerText = title;
 
-        // Рендер игры
-        document.getElementById('theme-title').innerText = config.title;
-        const board = document.getElementById('board');
-        for(let i=0; i<9; i++) {
-            const cell = document.createElement('div');
-            cell.className = 'cell';
-            cell.onclick = (e) => e.target.innerText = (e.target.innerText === config.p1) ? config.p2 : config.p1;
-            board.appendChild(cell);
+            const board = document.getElementById('board');
+            let turn = true;
+            for(let i=0; i<9; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.style.backgroundColor = color;
+                cell.onclick = (e) => {
+                    if(!e.target.innerText) {
+                        e.target.innerText = turn ? p1 : p2;
+                        turn = !turn;
+                    }
+                };
+                board.appendChild(cell);
+            }
         }
     </script>
 </body>
