@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Tic-Tac-Toe Quiz Builder</title>
+    <title>Tic-Tac-Toe Quiz Builder PRO</title>
     <style>
         body { font-family: sans-serif; margin: 0; display: flex; height: 100vh; background: #121212; color: white; }
         #panel { width: 450px; background: #1a1a1a; padding: 20px; border-right: 2px solid #ffea00; overflow-y: auto; }
@@ -14,7 +14,7 @@
 <body>
 
 <div id="panel">
-    <h2>Конструктор Заданий 📝</h2>
+    <h2>Конструктор Заданий (L) 📝</h2>
     <label>Цвет клеток:</label>
     <input type="color" id="cell-col" value="#ffffff" onchange="draw()">
     <label>Картинка Игрока 1:</label>
@@ -30,7 +30,6 @@
 </div>
 
 <script>
-    // Изначально 9 вопросов/заданий
     let tasks = Array.from({length: 9}, (_, i) => "Задание " + (i + 1));
 
     function renderEditor() {
@@ -50,9 +49,9 @@
         
         return `<iframe srcdoc='<!DOCTYPE html><html><head><style>
             body{margin:0;display:flex;justify-content:center;align-items:center;height:100vh;background:transparent;font-family:sans-serif}
-            .grid{display:grid;grid-template-columns:repeat(3,100px);gap:10px}
-            .cell{width:100px;height:100px;border:2px solid #333;display:flex;align-items:center;justify-content:center;cursor:pointer;background:${color};text-align:center;font-size:12px;font-weight:bold;padding:5px;box-sizing:border-box}
-            .cell img{max-width:80px}
+            .grid{display:grid;grid-template-columns:repeat(3,150px);gap:10px}
+            .cell{width:150px;height:150px;border:2px solid #333;display:flex;align-items:center;justify-content:center;cursor:pointer;background:${color};text-align:center;font-size:16px;font-weight:bold;padding:10px;box-sizing:border-box}
+            .cell img{max-width:120px}
             </style></head><body>
             <div class="grid" id="b"></div>
             <script>
@@ -77,11 +76,11 @@
                     };
                     b.appendChild(d);
                 });
-            <\/script></body></html>' width="350" height="350" frameborder="0" allowtransparency="true"></iframe>`;
+            <\/script></body></html>' width="500" height="500" frameborder="0" allowtransparency="true"></iframe>`;
     }
 
     function draw() { document.getElementById('preview-frame').innerHTML = getCode(); }
-    function copyCode() { navigator.clipboard.writeText(getCode()); alert("Код для Genially скопирован!"); }
+    function copyCode() { navigator.clipboard.writeText(getCode()); alert("Код скопирован!"); }
     renderEditor(); draw();
 </script>
 </body>
