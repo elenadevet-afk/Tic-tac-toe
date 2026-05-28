@@ -1,60 +1,41 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <style>
-        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; background: #f0f0f0; margin: 0; padding: 20px; }
-        #editor { background: white; padding: 20px; border-radius: 10px; width: 300px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
-        .board { display: grid; grid-template-columns: repeat(3, 80px); gap: 10px; margin-top: 20px; }
-        .cell { width: 80px; height: 80px; background: white; border: 3px solid #333; display: flex; align-items: center; justify-content: center; font-size: 30px; cursor: pointer; }
-        .hidden { display: none; }
+        :root { --bg: #f4f4f9; --accent: #4a90e2; }
+        body { font-family: sans-serif; background: var(--bg); display: flex; flex-direction: column; align-items: center; }
+        .board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 20px; width: 350px; }
+        .card { height: 100px; background: white; border: 2px solid var(--accent); display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; border-radius: 10px; }
     </style>
 </head>
 <body>
 
-    <!-- ПАНЕЛЬ РЕДАКТОРА -->
-    <div id="editor">
-        <h3>Настройка игры</h3>
-        Тема: <input type="text" id="title" value="English Quiz"><br><br>
-        Игрок 1: <input type="text" id="p1" value="✅" size="5"><br>
-        Игрок 2: <input type="text" id="p2" value="❌" size="5"><br>
-        Цвет ячеек: <input type="color" id="color" value="#ffffff"><br><br>
-        <button onclick="startGame()">Запустить игру</button>
-    </div>
-
-    <!-- ИГРОВОЕ ПОЛЕ -->
-    <div id="game-area" class="hidden">
-        <h2 id="display-title"></h2>
-        <div class="board" id="board"></div>
-        <button onclick="location.reload()" style="margin-top:20px">Сбросить настройки</button>
-    </div>
+    <h1 id="title"></h1>
+    <div class="board" id="board"></div>
 
     <script>
-        function startGame() {
-            const p1 = document.getElementById('p1').value;
-            const p2 = document.getElementById('p2').value;
-            const title = document.getElementById('title').value;
-            const color = document.getElementById('color').value;
+        // --- РЕДАКТИРУЙТЕ ТОЛЬКО ЭТО ---
+        const CONFIG = {
+            title: "English Lesson: Animals",
+            items: ["Cat", "Dog", "Bird", "Fish", "Lion", "Tiger", "Bear", "Wolf", "Fox"],
+            char1: "🐱",
+            char2: "🐶"
+        };
+        // -------------------------------
 
-            document.getElementById('editor').classList.add('hidden');
-            document.getElementById('game-area').classList.remove('hidden');
-            document.getElementById('display-title').innerText = title;
-
-            const board = document.getElementById('board');
-            let turn = true;
-            for(let i=0; i<9; i++) {
-                const cell = document.createElement('div');
-                cell.className = 'cell';
-                cell.style.backgroundColor = color;
-                cell.onclick = (e) => {
-                    if(!e.target.innerText) {
-                        e.target.innerText = turn ? p1 : p2;
-                        turn = !turn;
-                    }
-                };
-                board.appendChild(cell);
-            }
-        }
+        document.getElementById('title').innerText = CONFIG.title;
+        const board = document.getElementById('board');
+        
+        CONFIG.items.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerText = item;
+            card.onclick = () => {
+                card.innerText = (card.innerText === item) ? (Math.random() > 0.5 ? CONFIG.char1 : CONFIG.char2) : item;
+            };
+            board.appendChild(card);
+        });
     </script>
 </body>
 </html>
