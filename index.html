@@ -13,6 +13,8 @@
         label { display: block; margin-top: 10px; font-weight: bold; color: #ccc; }
         .color-row { display: flex; gap: 10px; }
         .color-row div { flex: 1; }
+        #view { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #1e1e1e; }
+        #view h3 { margin-bottom: 20px; color: #aaa; letter-spacing: 1px; }
     </style>
 </head>
 <body>
@@ -41,7 +43,8 @@
     <button class="btn-copy" onclick="copyCode()">COPY CODE FOR GENIALLY</button>
 </div>
 
-<div id="view" style="flex-grow:1; display:flex; justify-content:center; align-items:center;">
+<div id="view">
+    <h3>LIVE PREVIEW (Interactive)</h3>
     <div id="preview-frame"></div>
 </div>
 
@@ -66,82 +69,68 @@
         const textColor = document.getElementById('text-col').value;
         const data = JSON.stringify(tasks).replace(/'/g, "\\'");
         
-        return `<iframe srcdoc='<!DOCTYPE html><html><head><style>
+        // Формируем чистый HTML-код для iframe без лишних переносов строк, ломающих srcdoc
+        const iframeContent = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>
             body{margin:0;display:flex;justify-content:center;align-items:center;height:100vh;background:transparent;font-family:sans-serif;overflow:hidden}
             .wrapper{position:relative;width:470px;height:470px;display:flex;justify-content:center;align-items:center}
             .grid{display:grid;grid-template-columns:repeat(3,150px);gap:10px}
-            .cell{width:150px;height:150px;border:2px solid #333;display:flex;align-items:center;justify-content:center;cursor:pointer;background:${cellColor};color:${textColor};text-align:center;font-weight:bold;padding:5px;box-sizing:border-box;font-size:16px;word-break:break-word;overflow:hidden}
-            .cell img{max-width:140px; max-height:140px; object-fit:contain; display:block}
-            .overlay{position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);color:white;display:flex;flex-direction:column;justify-content:center;align-items:center;opacity:0;pointer-events:none;transition:opacity 0.3s ease;border-radius:10px;text-align:center;padding:20px;box-sizing:border-box}
+            .cell{width:150px;height:150px;border:2px solid #444;display:flex;align-items:center;justify-content:center;cursor:pointer;background:${cellColor};color:${textColor};text-align:center;font-weight:bold;padding:5px;box-sizing:border-box;font-size:18px;word-break:break-word;overflow:hidden}
+            .cell img{max-width:130px;max-height:130px;object-fit:contain;display:block}
+            .overlay{position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);color:white;display:flex;flex-direction:column;justify-content:center;align-items:center;opacity:0;pointer-events:none;transition:opacity 0.3s ease;border-radius:10px;text-align:center;padding:20px;box-sizing:border-box}
             .overlay.active{opacity:1;pointer-events:all}
-            .overlay h2{margin:0 0 15px 0;font-size:28px;color:#ffea00}
-            .btn-reset{background:#ffea00;color:black;border:none;padding:10px 20px;font-weight:bold;cursor:pointer;border-radius:5px;font-size:16px}
+            .overlay h2{margin:0 0 15px 0;font-size:32px;color:#ffea00}
+            .btn-reset{background:#ffea00;color:black;border:none;padding:12px 25px;font-weight:bold;cursor:pointer;border-radius:5px;font-size:16px}
             .btn-reset:hover{background:#fff}
-            </style></head><body>
+        </style></head><body>
             <div class="wrapper">
                 <div class="grid" id="b"></div>
-                <div class="overlay" id="o">
-                    <h2 id="m"></h2>
-                    <button class="btn-reset" onclick="resetGame()">Play Again</button>
-                </div>
+                <div class="overlay" id="o"><h2 id="m"></h2><button class="btn-reset" onclick="resetGame()">Play Again</button></div>
             </div>
             <script>
                 const tasks=${data}, b=document.getElementById("b"), o=document.getElementById("o"), m=document.getElementById("m");
-                let turn=true; 
-                let board=Array(9).fill("");
+                let turn=true, board=Array(9).fill("");
                 const winPatterns=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
-
                 function init(){
                     b.innerHTML=""; turn=true; board.fill(""); o.className="overlay";
                     tasks.forEach((item,i)=>{
                         const d=document.createElement("div"); d.className="cell";
                         if(item.startsWith("http")) d.innerHTML = "<img src=\\""+item+"\\">";
                         else d.innerText = item;
-                        
                         d.onclick=function(){
                             if(!board[i]){
                                 const p1="${p1}", p2="${p2}";
                                 const symbol = turn ? p1 : p2;
                                 board[i] = turn ? "X" : "O";
-                                
-                                if(symbol.startsWith("http")){
-                                    this.innerHTML = "<img src=\\""+symbol+"\\">";
-                                } else {
-                                    this.innerText = symbol;
-                                    this.style.color = "${textColor}";
-                                }
-                                
-                                if(checkWin(board[i])){
-                                    showEnd("Player " + (turn ? "1" : "2") + " Wins!");
-                                    return;
-                                }
-                                if(!board.includes("")){
-                                    showEnd("It\\'s a Tie!");
-                                    return;
-                                }
+                                if(symbol.startsWith("http")) this.innerHTML = "<img src=\\""+symbol+"\\">";
+                                else this.innerText = symbol;
+                                if(checkWin(board[i])){ showEnd("Player " + (turn ? "1" : "2") + " Wins!"); return; }
+                                if(!board.includes("")){ showEnd("It\\'s a Tie!"); return; }
                                 turn=!turn;
                             }
                         };
                         b.appendChild(d);
                     });
                 }
-
-                function checkWin(sym){
-                    return winPatterns.some(p => board[p[0]]===sym && board[p[1]]===sym && board[p[2]]===sym);
-                }
-
-                function showEnd(msg){
-                    m.innerText=msg; o.className="overlay active";
-                }
-
+                function checkWin(sym){ return winPatterns.some(p => board[p[0]]===sym && board[p[1]]===sym && board[p[2]]===sym); }
+                function showEnd(msg){ m.innerText=msg; o.className="overlay active"; }
                 function resetGame(){ init(); }
                 init();
-            <\/script></body></html>' width="500" height="500" frameborder="0" allowtransparency="true"></iframe>`;
+            <\/script></body></html>`;
+
+        return `<iframe srcdoc='${iframeContent.replace(/'/g, "&apos;")}' width="500" height="500" frameborder="0" allowtransparency="true"></iframe>`;
     }
 
-    function draw() { document.getElementById('preview-frame').innerHTML = getCode(); }
-    function copyCode() { navigator.clipboard.writeText(getCode()); alert("Code copied! Now paste it into Genially using 'Insert' -> 'Embed'."); }
-    renderEditor(); draw();
+    function draw() { 
+        document.getElementById('preview-frame').innerHTML = getCode(); 
+    }
+    
+    function copyCode() { 
+        navigator.clipboard.writeText(getCode()); 
+        alert("Code copied! Now paste it into Genially using 'Insert' -> 'Embed'."); 
+    }
+    
+    renderEditor(); 
+    draw();
 </script>
 </body>
 </html>
