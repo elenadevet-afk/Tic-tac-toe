@@ -18,6 +18,8 @@
         hr { border: 0; border-top: 1px solid #444; margin: 15px 0; }
         .player-box { background: #222; padding: 10px; margin: 10px 0; border-radius: 4px; border: 1px solid #333; }
         .player-box h4 { margin: 0 0 5px 0; color: #ffea00; }
+        .checkbox-row { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+        .checkbox-row input { width: auto; margin: 0; }
     </style>
 </head>
 <body>
@@ -49,6 +51,18 @@
             <label>Btn Reset:</label> 
             <input type="color" id="btn-col" value="#ffea00" onchange="draw()">
         </div>
+    </div>
+
+    <div class="checkbox-row">
+        <input type="checkbox" id="sound-enable" checked onchange="draw()">
+        <label for="sound-enable" style="margin: 0;">Enable Game Sounds</label>
+    </div>
+    
+    <div id="sound-urls">
+        <label>Win Sound URL:</label>
+        <input type="text" id="win-sound" value="https://actions.google.com/sounds/v1/cartoon/slide_whistle_to_drum_hit.ogg" oninput="draw()">
+        <label>Tie Sound URL:</label>
+        <input type="text" id="tie-sound" value="https://actions.google.com/sounds/v1/cartoon/cartoon_wink.ogg" oninput="draw()">
     </div>
     
     <hr>
@@ -94,7 +108,6 @@
     }
 
     function getCode() {
-        // Считываем имена игроков и экранируем кавычки
         const p1Name = document.getElementById('p1-name').value.replace(/'/g, "\\'");
         const p2Name = document.getElementById('p2-name').value.replace(/'/g, "\\'");
         
@@ -106,6 +119,11 @@
         const overlayColor = document.getElementById('overlay-col').value;
         const victoryTextColor = document.getElementById('v-text-col').value;
         const btnColor = document.getElementById('btn-col').value;
+
+        // Настройки звука
+        const soundEnabled = document.getElementById('sound-enable').checked;
+        const winSound = document.getElementById('win-sound').value.replace(/'/g, "\\'");
+        const tieSound = document.getElementById('tie-sound').value.replace(/'/g, "\\'");
 
         const data = JSON.stringify(tasks).replace(/'/g, "\\'");
         
@@ -130,6 +148,15 @@
                 const tasks=${data}, b=document.getElementById("b"), o=document.getElementById("o"), m=document.getElementById("m");
                 let turn=true, board=Array(9).fill("");
                 const winPatterns=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+                
+                // Функция проигрывания аудио
+                function playAudio(url) {
+                    if (${soundEnabled} && url) {
+                        const audio = new Audio(url);
+                        audio.play().catch(e => console.log("Audio play blocked until user interact"));
+                    }
+                }
+
                 function init(){
                     b.innerHTML=""; turn=true; board.fill(""); o.className="overlay";
                     tasks.forEach((item,i)=>{
@@ -145,9 +172,16 @@
                                 if(symbol.startsWith("http")) this.innerHTML = "<img src=\\""+symbol+"\\">";
                                 else this.innerText = symbol;
                                 
-                                // Выводим имя победившего игрока на экран оверлея
-                                if(checkWin(board[i])){ showEnd((turn ? p1Name : p2Name) + " Wins!"); return; }
-                                if(!board.includes("")){ showEnd("It\\'s a Tie!"); return; }
+                                if(checkWin(board[i])){ 
+                                    showEnd((turn ? p1Name : p2Name) + " Wins!"); 
+                                    playAudio("${winSound}");
+                                    return; 
+                                }
+                                if(!board.includes("")){ 
+                                    showEnd("It\\'s a Tie!"); 
+                                    playAudio("${tieSound}");
+                                    return; 
+                                }
                                 turn=!turn;
                             }
                         };
@@ -165,6 +199,10 @@
 
     function draw() { 
         document.getElementById('preview-frame').innerHTML = getCode(); 
+        
+        // Показываем/скрываем поля ссылок на аудио в зависимости от чекбокса
+        const soundDiv = document.getElementById('sound-urls');
+        soundDiv.style.display = document.getElementById('sound-enable').checked ? 'block' : 'none';
     }
     
     function copyCode() { 
@@ -172,9 +210,7 @@
         alert("Code copied! Now paste it into Genially using 'Insert' -> 'Embed'."); 
     }
     
-    // Запускаем отрисовку списка карточек для 9 ячеек
     renderEditor(); 
-    // Запускаем генерацию и показ превью игры
     draw();
 </script>
 </body>
