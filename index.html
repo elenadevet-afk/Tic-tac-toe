@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Ultimate Visual Builder - TicTacToe</title>
@@ -18,27 +18,27 @@
 <body>
 
 <div id="panel">
-    <h2>Конструктор Крестиков-Ноликов ❌⭕</h2>
+    <h2>Tic-Tac-Toe Builder ❌⭕</h2>
     
     <div class="color-row">
         <div>
-            <label>Цвет клеток:</label> 
+            <label>Cell Color:</label> 
             <input type="color" id="cell-col" value="#ffffff" onchange="draw()">
         </div>
         <div>
-            <label>Цвет текста:</label> 
+            <label>Text Color:</label> 
             <input type="color" id="text-col" value="#333333" onchange="draw()">
         </div>
     </div>
     
-    <label>Игрок 1 (Ходит первым):</label> 
-    <input type="text" id="p1-url" value="🍎" oninput="draw()">
+    <label>Player 1 (Starts first) - Text/Emoji or Image URL:</label> 
+    <input type="text" id="p1-url" value="❌" oninput="draw()">
     
-    <label>Игрок 2:</label> 
-    <input type="text" id="p2-url" value="🍌" oninput="draw()">
+    <label>Player 2 - Text/Emoji or Image URL:</label> 
+    <input type="text" id="p2-url" value="⭕" oninput="draw()">
     
     <div id="q-list"></div>
-    <button class="btn-copy" onclick="copyCode()">СКОПИРОВАТЬ КОД ДЛЯ GENIALLY</button>
+    <button class="btn-copy" onclick="copyCode()">COPY CODE FOR GENIALLY</button>
 </div>
 
 <div id="view" style="flex-grow:1; display:flex; justify-content:center; align-items:center;">
@@ -46,15 +46,15 @@
 </div>
 
 <script>
-    let tasks = Array.from({length: 9}, (_, i) => "Задание " + (i + 1));
+    let tasks = Array.from({length: 9}, (_, i) => "Task " + (i + 1));
 
     function renderEditor() {
         const c = document.getElementById('q-list'); 
-        c.innerHTML = '<h3>Текст в клетках (или ссылки на фото):</h3>';
+        c.innerHTML = '<h3>Cell Text or Image URLs:</h3>';
         tasks.forEach((val, i) => {
             const d = document.createElement('div'); 
             d.className = 'card';
-            d.innerHTML = `<small>Клетка ${i+1}</small><input type="text" value="${val}" oninput="tasks[${i}]=this.value;draw()">`;
+            d.innerHTML = `<small>Cell ${i+1}</small><input type="text" value="${val}" oninput="tasks[${i}]=this.value;draw()">`;
             c.appendChild(d);
         });
     }
@@ -71,7 +71,7 @@
             .wrapper{position:relative;width:470px;height:470px;display:flex;justify-content:center;align-items:center}
             .grid{display:grid;grid-template-columns:repeat(3,150px);gap:10px}
             .cell{width:150px;height:150px;border:2px solid #333;display:flex;align-items:center;justify-content:center;cursor:pointer;background:${cellColor};color:${textColor};text-align:center;font-weight:bold;padding:5px;box-sizing:border-box;font-size:16px;word-break:break-word;overflow:hidden}
-            .cell img{max-width:140px; max-height:140px; object-fit:contain}
+            .cell img{max-width:140px; max-height:140px; object-fit:contain; display:block}
             .overlay{position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);color:white;display:flex;flex-direction:column;justify-content:center;align-items:center;opacity:0;pointer-events:none;transition:opacity 0.3s ease;border-radius:10px;text-align:center;padding:20px;box-sizing:border-box}
             .overlay.active{opacity:1;pointer-events:all}
             .overlay h2{margin:0 0 15px 0;font-size:28px;color:#ffea00}
@@ -82,7 +82,7 @@
                 <div class="grid" id="b"></div>
                 <div class="overlay" id="o">
                     <h2 id="m"></h2>
-                    <button class="btn-reset" onclick="resetGame()">Играть снова</button>
+                    <button class="btn-reset" onclick="resetGame()">Play Again</button>
                 </div>
             </div>
             <script>
@@ -104,14 +104,19 @@
                                 const symbol = turn ? p1 : p2;
                                 board[i] = turn ? "X" : "O";
                                 
-                                this.innerHTML = symbol.startsWith("http") ? "<img src=\\""+symbol+"\\">" : symbol;
+                                if(symbol.startsWith("http")){
+                                    this.innerHTML = "<img src=\\""+symbol+"\\">";
+                                } else {
+                                    this.innerText = symbol;
+                                    this.style.color = "${textColor}";
+                                }
                                 
                                 if(checkWin(board[i])){
-                                    showEnd("Победил игрок " + (turn ? "1" : "2") + "!");
+                                    showEnd("Player " + (turn ? "1" : "2") + " Wins!");
                                     return;
                                 }
                                 if(!board.includes("")){
-                                    showEnd("Ничья!");
+                                    showEnd("It\\'s a Tie!");
                                     return;
                                 }
                                 turn=!turn;
@@ -135,7 +140,7 @@
     }
 
     function draw() { document.getElementById('preview-frame').innerHTML = getCode(); }
-    function copyCode() { navigator.clipboard.writeText(getCode()); alert("Код скопирован! Теперь вставьте его в Genially через Вставку (Insert -> Embed)."); }
+    function copyCode() { navigator.clipboard.writeText(getCode()); alert("Code copied! Now paste it into Genially using 'Insert' -> 'Embed'."); }
     renderEditor(); draw();
 </script>
 </body>
